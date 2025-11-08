@@ -1,26 +1,167 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
+import '../styles/Leaderboard.css';
 
 const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/leaderboard')
-      .then(res => setLeaders(res.data))
-      .catch(err => console.log(err));
+    setTimeout(() => {
+      const mockData = [
+        { _id: '1', name: 'EcoWarriors', points: 2450, knowledge: 850, decisions: 920, speed: 680, members: 4, avgTime: '12m 30s' },
+        { _id: '2', name: 'Green Guardians', points: 2380, knowledge: 920, decisions: 780, speed: 680, members: 5, avgTime: '13m 15s' },
+        { _id: '3', name: 'Climate Champions', points: 2290, knowledge: 800, decisions: 850, speed: 640, members: 3, avgTime: '14m 05s' },
+        { _id: '4', name: 'Planet Protectors', points: 2150, knowledge: 750, decisions: 820, speed: 580, members: 4, avgTime: '15m 20s' },
+        { _id: '5', name: 'Sustainability Squad', points: 2080, knowledge: 720, decisions: 780, speed: 580, members: 6, avgTime: '15m 45s' },
+        { _id: '6', name: 'Earth Alliance', points: 1950, knowledge: 680, decisions: 730, speed: 540, members: 3, avgTime: '16m 30s' },
+        { _id: '7', name: 'Carbon Crushers', points: 1890, knowledge: 650, decisions: 700, speed: 540, members: 4, avgTime: '17m 10s' },
+        { _id: '8', name: 'Renewable Rangers', points: 1820, knowledge: 620, decisions: 680, speed: 520, members: 5, avgTime: '17m 55s' },
+        { _id: '9', name: 'Eco Innovators', points: 1750, knowledge: 600, decisions: 650, speed: 500, members: 3, avgTime: '18m 20s' },
+        { _id: '10', name: 'Future Farmers', points: 1680, knowledge: 580, decisions: 620, speed: 480, members: 4, avgTime: '19m 05s' }
+      ];
+      setLeaders(mockData);
+      setLoading(false);
+    }, 800);
   }, []);
 
+  const getRankClass = (idx) => {
+    if (idx === 0) return 'rank-1';
+    if (idx === 1) return 'rank-2';
+    if (idx === 2) return 'rank-3';
+    return 'rank-default';
+  };
+
+  if (loading) {
+    return (
+      <div className="leaderboard-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Loading leaderboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="leaderboard-page">
-      <h2>🌎 Global Leaderboard</h2>
-      <ol>
-        {leaders.map((user, idx) => (
-          <li key={user._id}>
-            {idx + 1}. {user.name} - {user.points} pts
-          </li>
-        ))}
-      </ol>
+    <div className="leaderboard-container">
+      <div className="leaderboard-wrapper">
+        {/* Header */}
+        <div className="leaderboard-header">
+          <h1>
+            <span className="header-emoji">🏆</span>
+            Global Leaderboard
+            <span className="header-emoji">🏆</span>
+          </h1>
+          <p>Top 10 Climate Action Teams</p>
+          <p style={{ fontSize: '0.875rem', color: '#059669', maxWidth: '42rem', margin: '0.5rem auto 0' }}>
+            Teams earn points through knowledge (quiz performance), decisions (climate impact), 
+            and speed (mission completion time). Working together for a sustainable future!
+          </p>
+        </div>
+
+        {/* Legend */}
+        <div className="leaderboard-legend">
+          <div className="legend-title">
+            <span style={{ fontSize: '1.25rem' }}>⚡</span>
+            Scoring Dimensions
+          </div>
+          <div className="legend-grid">
+            <div className="legend-item" style={{ background: '#dbeafe' }}>
+              <span style={{ fontSize: '1.875rem' }}>🧠</span>
+              <div>
+                <h4 style={{ color: '#1e3a8a' }}>Knowledge</h4>
+                <p style={{ color: '#1e40af' }}>Quiz performance & accuracy</p>
+              </div>
+            </div>
+            <div className="legend-item" style={{ background: '#d1fae5' }}>
+              <span style={{ fontSize: '1.875rem' }}>🍃</span>
+              <div>
+                <h4 style={{ color: '#065f46' }}>Decisions</h4>
+                <p style={{ color: '#047857' }}>Climate impact choices</p>
+              </div>
+            </div>
+            <div className="legend-item" style={{ background: '#f3e8ff' }}>
+              <span style={{ fontSize: '1.875rem' }}>⏱️</span>
+              <div>
+                <h4 style={{ color: '#581c87' }}>Speed</h4>
+                <p style={{ color: '#6b21a8' }}>Mission completion time</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Leaderboard cards */}
+        <div className="leaderboard-list">
+          {leaders.map((team, idx) => (
+            <div key={team._id} className={`leaderboard-card ${idx < 3 ? 'top-three' : ''}`}>
+              <div className={`rank-badge ${getRankClass(idx)}`}>
+                {idx < 3 ? '🏆' : idx + 1}
+              </div>
+
+              <div className="team-info">
+                <div className="team-header">
+                  <h3 className="team-name">{team.name}</h3>
+                  <span className="team-members">
+                    <span style={{ fontSize: '1rem' }}>👥</span>
+                    {team.members} members
+                  </span>
+                </div>
+
+                <div className="stats-grid">
+                  <div className="stats-box stats-knowledge">
+                    <div className="stats-box-header">
+                      <span>🧠</span>
+                      Knowledge
+                    </div>
+                    <p className="stats-box-value">{team.knowledge}</p>
+                  </div>
+                  <div className="stats-box stats-decisions">
+                    <div className="stats-box-header">
+                      <span>🍃</span>
+                      Decisions
+                    </div>
+                    <p className="stats-box-value">{team.decisions}</p>
+                  </div>
+                  <div className="stats-box stats-speed">
+                    <div className="stats-box-header">
+                      <span>⏱️</span>
+                      Speed
+                    </div>
+                    <p className="stats-box-value">{team.speed}</p>
+                  </div>
+                  <div className="stats-box stats-avgtime">
+                    <div className="stats-box-header">
+                      <span>⚡</span>
+                      Avg Time
+                    </div>
+                    <p className="stats-box-value">{team.avgTime}</p>
+                  </div>
+                </div>
+
+                <div className="progress-container">
+                  <div className="progress-bar" style={{ width: `${(team.points / 2500) * 100}%` }}></div>
+                </div>
+              </div>
+
+              <div className="total-points">
+                <div className="points">{team.points}</div>
+                <div className="label">total pts</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="leaderboard-footer">
+          <div className="footer-box">
+            <h3>Collaboration Over Competition</h3>
+            <p>
+              Every team here is making a difference. Together, we're building a sustainable future 
+              through knowledge, smart decisions, and swift action. Keep up the amazing work!
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
