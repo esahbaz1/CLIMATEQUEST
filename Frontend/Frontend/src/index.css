@@ -23,11 +23,17 @@ a:hover {
 }
 
 body {
+  
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+<<<<<<< HEAD
   background: none; /* da ne prekriva tvoj background */
   display: block; /* reset da ne centrira sadržaj */
+=======
+  background: none; /* da ne prekriva tvoj background /
+  display: block; / reset da ne centrira sadržaj */
+>>>>>>> 95b79880597c1b6c41f93f07e056d023b84d6357
 }
 
 h1 {

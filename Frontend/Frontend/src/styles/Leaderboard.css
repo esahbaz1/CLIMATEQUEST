@@ -1,11 +1,21 @@
 
-/* Global container */
+/* Reset default margins and make full width/height */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Make the main container fill the screen */
 .leaderboard-container {
   min-height: 100vh;
+  width: 100vw; /* ensures it spans the full viewport width */
   background: linear-gradient(to bottom right, #ecfdf5, #d1fae5, #ccfbf1);
   padding: 2rem 1rem;
   font-family: Arial, sans-serif;
   color: #065f46;
+  box-sizing: border-box;
 }
 
 /* Header */
