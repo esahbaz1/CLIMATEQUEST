@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 
-const MissionSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  co2Target: Number,
-  options: [
-    {
-      name: String,
-      impact: Number
-    }
-  ]
-}, { timestamps: true });
+const optionSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  impact: { type: Number, required: true }
+});
 
-module.exports = mongoose.model('Mission', MissionSchema);
+const missionSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  options: [optionSchema]
+});
+
+module.exports = mongoose.model('Mission', missionSchema);

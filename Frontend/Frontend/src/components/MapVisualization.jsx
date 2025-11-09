@@ -8,31 +8,51 @@ const MissionSimulation = () => {
   const { id } = useParams();
   const [mission, setMission] = useState(null);
   const [impact, setImpact] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   useEffect(() => {
+    // Promijeni URL na svoj deploy backend kad bude online
     axios.get(`http://localhost:5000/api/missions/${id}`)
       .then(res => setMission(res.data))
-      .catch(err => console.log(err));
+      .catch(err => console.error(err));
   }, [id]);
 
-  const handleDecision = (value) => {
-    setImpact(prev => prev + value);
+  const handleDecision = (option) => {
+    setImpact(prev => prev + option.impact);
+    setSelectedOption(option.name);
   };
 
-  if (!mission) return <p>Loading...</p>;
+  if (!mission) return <p>Loading mission...</p>;
 
   return (
-    <div className="mission-page">
+    <div className="mission-page" style={{ padding: '2rem', maxWidth: '600px', margin: 'auto' }}>
       <h2>{mission.title}</h2>
       <p>{mission.description}</p>
-      <div className="decision-buttons">
+
+      <div className="decision-buttons" style={{ margin: '1rem 0' }}>
         {mission.options.map(opt => (
-          <button key={opt._id} onClick={() => handleDecision(opt.impact)}>
-            {opt.name}
+          <button
+            key={opt._id}
+            onClick={() => handleDecision(opt)}
+            style={{
+              display: 'block',
+              margin: '0.5rem 0',
+              padding: '0.5rem 1rem',
+              backgroundColor: selectedOption === opt.name ? '#4caf50' : '#2196f3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            {opt.name} ({opt.impact}% CO₂)
           </button>
         ))}
       </div>
-      <p>Current Impact: {impact} % CO₂ reduced</p>
+
+      <p><strong>Selected option:</strong> {selectedOption || 'None'}</p>
+      <p><strong>Current Impact:</strong> {impact} % CO₂ reduced</p>
+
       <EcoBotWidget missionId={id} />
     </div>
   );

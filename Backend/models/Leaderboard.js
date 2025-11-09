@@ -1,8 +1,13 @@
 const mongoose = require('mongoose');
 
-const LeaderboardSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+const leaderboardSchema = new mongoose.Schema({
+  name: String,
   points: Number,
-}, { timestamps: true });
+  knowledge: Number,
+  decisions: Number,
+  speed: Number,
+  members: Number,
+  avgTime: String,
+});
 
-module.exports = mongoose.model('Leaderboard', LeaderboardSchema);
+module.exports = mongoose.model('Leaderboard', leaderboardSchema);

@@ -9,172 +9,70 @@ const LearnAct = () => {
   const [showCompletedModal, setShowCompletedModal] = useState(false);
   const [completedTip, setCompletedTip] = useState(null);
 
-  // Sustainability tips database
-  const allTips = [
-    {
-      id: 1,
-      category: 'Energy',
-      title: 'Replace light bulbs with LEDs',
-      impact: 'Save 30kg CO₂ per year',
-      description: 'LED bulbs use 75% less energy and last 25 times longer than incandescent bulbs.',
-      points: 50,
-      difficulty: 'Easy',
-      icon: '💡'
-    },
-    {
-      id: 2,
-      category: 'Food',
-      title: 'Reduce meat consumption one day a week',
-      impact: 'Cut your footprint by 15%',
-      description: 'Livestock farming produces 14.5% of global greenhouse gas emissions. One meatless day per week can make a significant difference.',
-      points: 75,
-      difficulty: 'Medium',
-      icon: '🥗'
-    },
-    {
-      id: 3,
-      category: 'Transportation',
-      title: 'Bike or walk for short trips',
-      impact: 'Save 200kg CO₂ per month',
-      description: 'For trips under 3km, active transportation eliminates emissions and improves your health.',
-      points: 100,
-      difficulty: 'Medium',
-      icon: '🚴'
-    },
-    {
-      id: 4,
-      category: 'Energy',
-      title: 'Unplug devices when not in use',
-      impact: 'Reduce phantom power by 10%',
-      description: 'Devices on standby can account for 10% of your electricity bill. Use power strips for easy unplugging.',
-      points: 40,
-      difficulty: 'Easy',
-      icon: '🔌'
-    },
-    {
-      id: 5,
-      category: 'Water',
-      title: 'Install a low-flow showerhead',
-      impact: 'Save 11,000 liters per year',
-      description: 'Low-flow showerheads reduce water usage by up to 50% without sacrificing pressure.',
-      points: 60,
-      difficulty: 'Easy',
-      icon: '🚿'
-    },
-    {
-      id: 6,
-      category: 'Waste',
-      title: 'Start composting food scraps',
-      impact: 'Divert 150kg from landfills yearly',
-      description: 'Composting reduces methane emissions from landfills and creates nutrient-rich soil.',
-      points: 90,
-      difficulty: 'Hard',
-      icon: '🌱'
-    },
-    {
-      id: 7,
-      category: 'Energy',
-      title: 'Lower thermostat by 2°C in winter',
-      impact: 'Save 320kg CO₂ per year',
-      description: 'Each degree reduction saves about 6% on heating costs and significantly reduces emissions.',
-      points: 70,
-      difficulty: 'Easy',
-      icon: '🌡️'
-    },
-    {
-      id: 8,
-      category: 'Waste',
-      title: 'Use reusable shopping bags',
-      impact: 'Prevent 500 plastic bags annually',
-      description: 'Plastic bags take 1000 years to decompose. Keep reusable bags in your car or by the door.',
-      points: 45,
-      difficulty: 'Easy',
-      icon: '🛍️'
-    },
-    {
-      id: 9,
-      category: 'Food',
-      title: 'Buy local and seasonal produce',
-      impact: 'Reduce food miles by 80%',
-      description: 'Local seasonal food requires less transportation and storage, cutting emissions significantly.',
-      points: 65,
-      difficulty: 'Medium',
-      icon: '🍎'
-    },
-    {
-      id: 10,
-      category: 'Transportation',
-      title: 'Carpool to work twice a week',
-      impact: 'Save 400kg CO₂ per year',
-      description: 'Sharing rides cuts individual emissions in half and reduces traffic congestion.',
-      points: 85,
-      difficulty: 'Medium',
-      icon: '🚗'
-    },
-    {
-      id: 11,
-      category: 'Water',
-      title: 'Fix leaky faucets promptly',
-      impact: 'Save 75 liters per day',
-      description: 'A dripping faucet can waste 20 liters per day. Most leaks are easy and cheap to fix.',
-      points: 35,
-      difficulty: 'Easy',
-      icon: '💧'
-    },
-    {
-      id: 12,
-      category: 'Energy',
-      title: 'Air dry clothes instead of using dryer',
-      impact: 'Save 225kg CO₂ per year',
-      description: 'Dryers are one of the most energy-intensive appliances. Line drying is free and gentle on fabrics.',
-      points: 55,
-      difficulty: 'Easy',
-      icon: '👕'
-    }
-  ];
+  // 🔹 Dohvati userId iz localStorage
+  const userId = localStorage.getItem('userId');
 
   const categories = ['all', 'Energy', 'Food', 'Transportation', 'Water', 'Waste'];
+  const API_BASE =
+    process.env.NODE_ENV === 'production'
+      ? 'https://tvoj-backend-na-renderu.onrender.com'
+      : 'http://localhost:3000';
 
   useEffect(() => {
-    // Load completed tips from localStorage
-    const saved = localStorage.getItem('completedTips');
-    if (saved) {
-      const completed = JSON.parse(saved);
-      setCompletedTips(completed);
-      const points = completed.reduce((sum, tip) => sum + tip.points, 0);
-      setTotalPoints(points);
-    }
+    const fetchTips = async () => {
+      try {
+        // 🔹 Dohvati sve tipove iz backend API-ja
+        const res = await fetch(`${API_BASE}/api/tips`);// promijeni URL
+        const tipsData = await res.json();
 
-    // Filter out completed tips
-    const savedCompleted = saved ? JSON.parse(saved) : [];
-    const completedIds = savedCompleted.map(t => t.id);
-    const available = allTips.filter(tip => !completedIds.includes(tip.id));
-    setTips(available);
-  }, []);
+        // 🔹 Dohvati završene tipove za usera iz localStorage
+        const savedCompleted = localStorage.getItem('completedTips');
+        const completedData = savedCompleted ? JSON.parse(savedCompleted) : [];
+        const completedIds = completedData.map(t => t._id);
 
-  const filteredTips = selectedCategory === 'all' 
-    ? tips 
+        // 🔹 Filtriraj dostupne tipove
+        const availableTips = tipsData.filter(t => !completedIds.includes(t._id));
+
+        setTips(availableTips);
+        setCompletedTips(completedData);
+
+        // 🔹 Izračunaj ukupne bodove
+        const total = completedData.reduce((sum, t) => sum + t.points, 0);
+        setTotalPoints(total);
+      } catch (err) {
+        console.error('❌ Error fetching tips:', err);
+      }
+    };
+
+    if (userId) fetchTips(); // samo ako postoji userId
+  }, [userId]);
+
+  const filteredTips = selectedCategory === 'all'
+    ? tips
     : tips.filter(tip => tip.category === selectedCategory);
 
   const handleComplete = (tip) => {
-    const updatedTips = tips.filter(t => t.id !== tip.id);
+    const updatedTips = tips.filter(t => t._id !== tip._id);
     const updatedCompleted = [...completedTips, { ...tip, completedDate: new Date().toISOString() }];
-    
+
     setTips(updatedTips);
     setCompletedTips(updatedCompleted);
     setTotalPoints(prev => prev + tip.points);
-    
+
+    // 🔹 Spremi u localStorage
     localStorage.setItem('completedTips', JSON.stringify(updatedCompleted));
-    
+
+    // 🔹 Pošalji info backendu da je korisnik završio tip (ako želiš)
+    // fetch('https://tvoj-backend-url.onrender.com/api/tips/complete', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ userId, tipId: tip._id }),
+    // });
+
     setCompletedTip(tip);
     setShowCompletedModal(true);
-    
-    setTimeout(() => {
-      setShowCompletedModal(false);
-    }, 3000);
-  };
-
-  const getDifficultyColor = (difficulty) => {
+    setTimeout(() => setShowCompletedModal(false), 3000);
+  };  const getDifficultyColor = (difficulty) => {
     switch(difficulty) {
       case 'Easy': return '#10b981';
       case 'Medium': return '#f59e0b';

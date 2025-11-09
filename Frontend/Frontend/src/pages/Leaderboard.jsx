@@ -1,27 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/Leaderboard.css';
 
+const API_BASE =
+  process.env.NODE_ENV === 'production'
+    ? 'https://tvoj-backend-na-renderu.onrender.com' // <-- zamijeni sa tvojim Render linkom
+    : 'http://localhost:3000';
+
 const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    setTimeout(() => {
-      const mockData = [
-        { _id: '1', name: 'EcoWarriors', points: 2450, knowledge: 850, decisions: 920, speed: 680, members: 4, avgTime: '12m 30s' },
-        { _id: '2', name: 'Green Guardians', points: 2380, knowledge: 920, decisions: 780, speed: 680, members: 5, avgTime: '13m 15s' },
-        { _id: '3', name: 'Climate Champions', points: 2290, knowledge: 800, decisions: 850, speed: 640, members: 3, avgTime: '14m 05s' },
-        { _id: '4', name: 'Planet Protectors', points: 2150, knowledge: 750, decisions: 820, speed: 580, members: 4, avgTime: '15m 20s' },
-        { _id: '5', name: 'Sustainability Squad', points: 2080, knowledge: 720, decisions: 780, speed: 580, members: 6, avgTime: '15m 45s' },
-        { _id: '6', name: 'Earth Alliance', points: 1950, knowledge: 680, decisions: 730, speed: 540, members: 3, avgTime: '16m 30s' },
-        { _id: '7', name: 'Carbon Crushers', points: 1890, knowledge: 650, decisions: 700, speed: 540, members: 4, avgTime: '17m 10s' },
-        { _id: '8', name: 'Renewable Rangers', points: 1820, knowledge: 620, decisions: 680, speed: 520, members: 5, avgTime: '17m 55s' },
-        { _id: '9', name: 'Eco Innovators', points: 1750, knowledge: 600, decisions: 650, speed: 500, members: 3, avgTime: '18m 20s' },
-        { _id: '10', name: 'Future Farmers', points: 1680, knowledge: 580, decisions: 620, speed: 480, members: 4, avgTime: '19m 05s' }
-      ];
-      setLeaders(mockData);
-      setLoading(false);
-    }, 800);
+    const fetchLeaders = async () => {
+      try {
+        // Ako deployaš backend na Render, promijeni URL u svoj backend link
+        const res = await fetch(`${API_BASE}/api/leaderboard`);
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch leaderboard data');
+        }
+
+        const data = await res.json();
+        setLeaders(data);
+      } catch (err) {
+        console.error('Error fetching leaderboard:', err);
+        setError('Unable to load leaderboard. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaders();
   }, []);
 
   const getRankClass = (idx) => {
@@ -42,6 +52,22 @@ const Leaderboard = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="leaderboard-container">
+        <p className="error-text">{error}</p>
+      </div>
+    );
+  }
+
+  if (leaders.length === 0) {
+    return (
+      <div className="leaderboard-container">
+        <p className="empty-text">No teams found yet. Be the first to take action! 🌍</p>
+      </div>
+    );
+  }
+
   return (
     <div className="leaderboard-container">
       <div className="leaderboard-wrapper">
@@ -53,7 +79,14 @@ const Leaderboard = () => {
             <span className="header-emoji">🏆</span>
           </h1>
           <p>Top 10 Climate Action Teams</p>
-          <p style={{ fontSize: '0.875rem', color: '#059669', maxWidth: '42rem', margin: '0.5rem auto 0' }}>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#059669',
+              maxWidth: '42rem',
+              margin: '0.5rem auto 0',
+            }}
+          >
             Teams earn points through knowledge (quiz performance), decisions (climate impact), 
             and speed (mission completion time). Working together for a sustainable future!
           </p>
@@ -90,10 +123,10 @@ const Leaderboard = () => {
           </div>
         </div>
 
-        {/* Leaderboard cards */}
+        {/* Leaderboard Cards */}
         <div className="leaderboard-list">
           {leaders.map((team, idx) => (
-            <div key={team._id} className={`leaderboard-card ${idx < 3 ? 'top-three' : ''}`}>
+            <div key={team._id || idx} className={`leaderboard-card ${idx < 3 ? 'top-three' : ''}`}>
               <div className={`rank-badge ${getRankClass(idx)}`}>
                 {idx < 3 ? '🏆' : idx + 1}
               </div>
@@ -139,7 +172,10 @@ const Leaderboard = () => {
                 </div>
 
                 <div className="progress-container">
-                  <div className="progress-bar" style={{ width: `${(team.points / 2500) * 100}%` }}></div>
+                  <div
+                    className="progress-bar"
+                    style={{ width: `${(team.points / 2500) * 100}%` }}
+                  ></div>
                 </div>
               </div>
 
