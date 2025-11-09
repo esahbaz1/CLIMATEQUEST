@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import '../styles/Dashboard.css';
+
 const Dashboard = () => {
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMission, setSelectedMission] = useState(null);
+  const [missionAccepted, setMissionAccepted] = useState(false);
 
   useEffect(() => {
     const mockMissions = [
@@ -11,16 +16,8 @@ const Dashboard = () => {
         title: 'Reduce CO2 in Your City',
         emoji: '🏭',
         description: 'Help reduce carbon emissions through sustainable transportation and energy choices',
-        baseline: {
-          current: 5.2,
-          unit: 'tons per person',
-          label: 'National CO2 emissions'
-        },
-        goal: {
-          target: 10,
-          unit: '% reduction',
-          label: 'Target reduction'
-        },
+        baseline: { current: 5.2, unit: 'tons per person', label: 'National CO2 emissions' },
+        goal: { target: 10, unit: '% reduction', label: 'Target reduction' },
         impact: 'High',
         difficulty: 'Medium',
         participants: 2847,
@@ -31,16 +28,8 @@ const Dashboard = () => {
         title: 'Protect the Forest',
         emoji: '🌲',
         description: 'Combat deforestation by supporting reforestation initiatives and sustainable practices',
-        baseline: {
-          current: 178000,
-          unit: 'hectares lost',
-          label: 'Annual deforestation'
-        },
-        goal: {
-          target: 15,
-          unit: '% reduction',
-          label: 'Target reduction'
-        },
+        baseline: { current: 178000, unit: 'hectares lost', label: 'Annual deforestation' },
+        goal: { target: 15, unit: '% reduction', label: 'Target reduction' },
         impact: 'Critical',
         difficulty: 'Hard',
         participants: 1523,
@@ -51,16 +40,8 @@ const Dashboard = () => {
         title: 'Save Energy',
         emoji: '⚡',
         description: 'Reduce energy consumption through efficient appliances and renewable sources',
-        baseline: {
-          current: 3.8,
-          unit: 'MWh per capita',
-          label: 'Average energy use'
-        },
-        goal: {
-          target: 20,
-          unit: '% reduction',
-          label: 'Target reduction'
-        },
+        baseline: { current: 3.8, unit: 'MWh per capita', label: 'Average energy use' },
+        goal: { target: 20, unit: '% reduction', label: 'Target reduction' },
         impact: 'High',
         difficulty: 'Easy',
         participants: 4192,
@@ -71,16 +52,8 @@ const Dashboard = () => {
         title: 'Cool Down Your City',
         emoji: '🌡️',
         description: 'Address urban heat islands through green spaces and sustainable urban planning',
-        baseline: {
-          current: 1.5,
-          unit: '°C above normal',
-          label: 'Urban temperature rise'
-        },
-        goal: {
-          target: 0.5,
-          unit: '°C reduction',
-          label: 'Target cooling'
-        },
+        baseline: { current: 1.5, unit: '°C above normal', label: 'Urban temperature rise' },
+        goal: { target: 0.5, unit: '°C reduction', label: 'Target cooling' },
         impact: 'Medium',
         difficulty: 'Medium',
         participants: 981,
@@ -91,16 +64,8 @@ const Dashboard = () => {
         title: 'Reduce Plastic Waste',
         emoji: '♻️',
         description: 'Minimize single-use plastics and promote circular economy practices',
-        baseline: {
-          current: 52,
-          unit: 'kg per person',
-          label: 'Annual plastic waste'
-        },
-        goal: {
-          target: 30,
-          unit: '% reduction',
-          label: 'Target reduction'
-        },
+        baseline: { current: 52, unit: 'kg per person', label: 'Annual plastic waste' },
+        goal: { target: 30, unit: '% reduction', label: 'Target reduction' },
         impact: 'High',
         difficulty: 'Easy',
         participants: 3567,
@@ -111,16 +76,8 @@ const Dashboard = () => {
         title: 'Preserve Water Resources',
         emoji: '💧',
         description: 'Conserve water through efficient usage and protection of water sources',
-        baseline: {
-          current: 142,
-          unit: 'liters per day',
-          label: 'Average water consumption'
-        },
-        goal: {
-          target: 25,
-          unit: '% reduction',
-          label: 'Target reduction'
-        },
+        baseline: { current: 142, unit: 'liters per day', label: 'Average water consumption' },
+        goal: { target: 25, unit: '% reduction', label: 'Target reduction' },
         impact: 'Critical',
         difficulty: 'Medium',
         participants: 2103,
@@ -133,8 +90,23 @@ const Dashboard = () => {
     }, 800);
   }, []);
 
+  const handleAcceptClick = (mission) => {
+    setSelectedMission(mission);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleConfirmMission = () => {
+    setIsModalOpen(false);
+    setMissionAccepted(true);
+    setTimeout(() => setMissionAccepted(false), 3000); // automatski nestaje nakon 3 sekunde
+  };
+
   const getImpactColor = (impact) => {
-    switch(impact) {
+    switch (impact) {
       case 'Critical': return '#dc2626';
       case 'High': return '#ea580c';
       case 'Medium': return '#ca8a04';
@@ -143,7 +115,7 @@ const Dashboard = () => {
   };
 
   const getDifficultyColor = (difficulty) => {
-    switch(difficulty) {
+    switch (difficulty) {
       case 'Easy': return '#10b981';
       case 'Medium': return '#f59e0b';
       case 'Hard': return '#dc2626';
@@ -164,6 +136,35 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {/* ✅ Animirani ekran nakon prihvatanja misije */}
+      {missionAccepted && selectedMission && (
+        <motion.div 
+          className="accepted-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div 
+            className="accepted-content"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 200 }}
+          >
+            <h1>🎉 Mission Accepted!</h1>
+            <p>You've joined the mission to <strong>{selectedMission.title}</strong>.</p>
+            <p>+50 Eco Points 🌱 earned!</p>
+
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+              className="badge"
+            >
+              🏅
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+
       <div className="dashboard-header">
         <h1>
           <span className="header-emoji">🌍</span>
@@ -175,14 +176,35 @@ const Dashboard = () => {
 
       <div className="mission-info-box">
         <h3>📊 About These Missions</h3>
-        <p>Each mission is based on real ASDI (Anthropogenic Sources of Data Intelligence) statistics including national emission rates, deforestation data, energy consumption patterns, and climate indicators. Your actions contribute to measurable environmental impact.</p>
+        <p>
+          Each mission is based on real ASDI (Anthropogenic Sources of Data Intelligence) statistics including national emission rates,
+          deforestation data, energy consumption patterns, and climate indicators.
+          Your actions contribute to measurable environmental impact.
+        </p>
       </div>
+
+      {/* ✅ Modal sa detaljima misije */}
+      {isModalOpen && selectedMission && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>{selectedMission.emoji} {selectedMission.title}</h2>
+            <p>{selectedMission.description}</p>
+            <p><strong>Goal:</strong> {selectedMission.goal.target}{selectedMission.goal.unit}</p>
+            <p><strong>Baseline:</strong> {selectedMission.baseline.current} {selectedMission.baseline.unit}</p>
+
+            <div className="modal-buttons">
+              <button className="cancel-btn" onClick={handleCloseModal}>Cancel</button>
+              <button className="confirm-btn" onClick={handleConfirmMission}>Confirm Mission ✅</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="missions-grid">
         {missions.map(mission => (
           <div key={mission._id} className="mission-card">
             <div className="mission-emoji">{mission.emoji}</div>
-            
+
             <div className="mission-content">
               <h3 className="mission-title">{mission.title}</h3>
               <p className="mission-description">{mission.description}</p>
@@ -211,7 +233,7 @@ const Dashboard = () => {
                 <div className="meta-badges">
                   <span 
                     className="badge impact-badge"
-                    style={{ 
+                    style={{
                       background: getImpactColor(mission.impact) + '20',
                       color: getImpactColor(mission.impact),
                       border: `2px solid ${getImpactColor(mission.impact)}`
@@ -221,7 +243,7 @@ const Dashboard = () => {
                   </span>
                   <span 
                     className="badge difficulty-badge"
-                    style={{ 
+                    style={{
                       background: getDifficultyColor(mission.difficulty) + '20',
                       color: getDifficultyColor(mission.difficulty),
                       border: `2px solid ${getDifficultyColor(mission.difficulty)}`
@@ -230,7 +252,7 @@ const Dashboard = () => {
                     {mission.difficulty}
                   </span>
                 </div>
-                
+
                 <div className="participants">
                   <span className="participants-icon">👥</span>
                   <span className="participants-count">{mission.participants.toLocaleString()}</span>
@@ -238,7 +260,10 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <button className="mission-button">
+              <button 
+                className="mission-button"
+                onClick={() => handleAcceptClick(mission)}
+              >
                 Accept Mission →
               </button>
             </div>
