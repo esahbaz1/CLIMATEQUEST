@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const ecobotRoutes = require('./routes/ecobot');
 
 // 🔹 Rute
 const authRoutes = require('./routes/authRoutes');
@@ -22,7 +23,7 @@ app.use(express.json());
 
 // ✅ Rute
 app.use('/api/auth', authRoutes);
-
+app.use('/api/ecobot', ecobotRoutes);
 // ✅ Ruta za dohvat tipova
 app.get('/api/tips', async (req, res) => {
   try {

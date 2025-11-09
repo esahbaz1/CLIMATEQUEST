@@ -1,16 +1,31 @@
 const express = require('express');
+const axios = require('axios');
 const router = express.Router();
 
-// Simple AI response simulation
 router.post('/', async (req, res) => {
   const { message } = req.body;
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: 'gpt-5-mini',
+        messages: [{ role: 'user', content: message }],
+        temperature: 0.7
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-  // Demo responses
-  let reply = "I'm not sure, but keep making sustainable choices!";
-  if (message.toLowerCase().includes('co2')) reply = "Reducing CO₂ is key! Plant trees or use solar energy.";
-  if (message.toLowerCase().includes('energy')) reply = "Saving energy helps! Turn off unused lights and devices.";
-
-  res.json({ reply });
+    const botReply = response.data.choices[0].message.content;
+    res.json({ reply: botReply });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ reply: "Sorry, I couldn't process your request." });
+  }
 });
 
 module.exports = router;
