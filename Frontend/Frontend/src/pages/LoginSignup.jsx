@@ -17,29 +17,60 @@ const LoginSignup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isLogin) {
-      console.log('Login:', { email: formData.email, password: formData.password });
-      // Add login logic here
-    } else {
-      if (formData.password !== formData.confirmPassword) {
-        alert('Passwords do not match!');
-        return;
-      }
-      console.log('Signup:', formData);
-      // Add signup logic here
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // ✅ Provjera passworda kod signup-a
+  if (!isLogin && formData.password !== formData.confirmPassword) {
+    alert('Passwords do not match!');
+    return;
+  }
+
+  // ✅ Dinamički odabir backend URL-a
+  const API_BASE =
+    process.env.NODE_ENV === 'production'
+      ? 'https://tvoj-backend-na-renderu.onrender.com' // 🔹 zamijeni ovim URL-om kad deployaš
+      : 'http://localhost:3000';
+
+  const endpoint = isLogin
+  ? `${API_BASE}/api/auth/login`
+  : `${API_BASE}/api/auth/signup`; // ✅
+
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || 'Something went wrong');
+      return;
     }
-  };
+
+    alert(isLogin ? 'Login successful!' : 'Signup successful!');
+    console.log('Response:', data);
+
+    // ✅ Reset forme
+    setFormData({ username: '', email: '', password: '', confirmPassword: '' });
+
+  } catch (error) {
+    console.error('Error:', error);
+    alert('An error occurred while connecting to the server.');
+  }
+};
+
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
-    setFormData({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    });
+    setFormData({ username: '', email: '', password: '', confirmPassword: '' });
   };
 
   return (
@@ -61,7 +92,7 @@ const LoginSignup = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 placeholder="Choose a username"
-                required={!isLogin}
+                required
               />
             </div>
           )}
@@ -102,7 +133,7 @@ const LoginSignup = () => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 placeholder="Confirm your password"
-                required={!isLogin}
+                required
               />
             </div>
           )}
@@ -120,12 +151,6 @@ const LoginSignup = () => {
             </span>
           </p>
         </div>
-
-        {isLogin && (
-          <div className="forgot-password">
-            <a href="#forgot">Forgot Password?</a>
-          </div>
-        )}
       </div>
     </div>
   );
